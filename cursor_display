@@ -1,0 +1,44 @@
+create procedure [dbo].[curser_display_12]  
+( @emp_id varchar(20))
+as     
+begin
+  
+DECLARE @L_code varchar(20);
+DECLARE @L_BusinessDate varchar(20);
+DECLARE @L_ssno varchar(20);
+DECLARE @L_Operatorcode varchar(20);
+DECLARE @L_Logintime varchar(20);
+DECLARE @Logouttime varchar(20);
+
+
+
+
+
+
+PRINT '-------- EMPLOYEE DETAILS --------';    
+  
+DECLARE emp_cursor CURSOR FOR     
+SELECT code, BusinessDate, ssno, Operatorcode, Logintime, LogoutDateTime    
+FROM AssignDraw_STLD_Live where LogoutDateTime='';    
+  
+OPEN emp_cursor    
+  
+FETCH NEXT FROM emp_cursor     
+INTO @L_code,@L_BusinessDate,@L_ssno,@L_Operatorcode,@L_Logintime,@Logouttime;   
+  
+print 'code, BusinessDate, ssno, Operatorcode, Logintime, LogoutDateTime'       
+  
+WHILE @@FETCH_STATUS = 0    
+BEGIN    
+    print '   ' + CAST(@L_code as varchar(10)) +' '+ cast(@L_BusinessDate as varchar(20))+' '+ cast(@L_ssno as varchar(20))+' '+ cast(@L_Operatorcode as varchar(20))+' '+ cast(@L_Logintime as varchar(20))+' '+ cast(@Logouttime as varchar(20))  
+  
+  IF @Logouttime=''
+    update AssignDraw_STLD_Live set LogoutDateTime=(select LogoutDateTime from AssignDraw_STLD_Live where code =@L_code and BusinessDate=@L_BusinessDate and ssno=@L_ssno and  Operatorcode=@L_Operatorcode and Logintime=@L_Logintime) where code =@L_code and BusinessDate=@L_BusinessDate and ssno=@L_ssno and  Operatorcode=@L_Operatorcode and Logintime=@L_Logintime;
+      
+    FETCH NEXT FROM emp_cursor     
+INTO @L_code,@L_BusinessDate,@L_ssno,@L_Operatorcode,@L_Logintime,@Logouttime;    
+   
+END     
+CLOSE emp_cursor;    
+DEALLOCATE emp_cursor;
+end
